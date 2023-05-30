@@ -2,9 +2,6 @@ class ChargeController < ApplicationController
   def index; end
 
   def create
-    data = params[:charge]
-    puts 'here we go'
-    puts data
     @charge = Charge.new(allowed_charge_params)
 
     if @charge.save
