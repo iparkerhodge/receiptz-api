@@ -7,23 +7,23 @@ class UsersController < ApplicationController
     data = TwitterApi.new.get_user_from_token(params[:token][:access_token])
     @twitter_user = data.transform_keys! { |k| "twitter_#{k}" }
 
+    # first check if user exists
+    @existing_user = User.find_by twitter_username: @twitter_user['twitter_username']
+    if @existing_user
+      render json: @existng_user
+      return
+    end
+
     # create the new user
-    puts params
     @user = User.new(@twitter_user)
-    # @user.twitter_id = @twitter_user['id']
-    # @user.twitter_name = @twitter_user['name']
-    # @user.twitter_username = @twitter_user['username']
     if @user.save
       @user.access_token = params[:token][:access_token]
       @user.access_token_issued_at = params[:token][:issued_at]
       @user.refresh_token = params[:token][:refresh_token]
 
       render json: @user
-    #   log_in @user
-    #   redirect_to @user
     else
-      #   render 'new'
-      puts 'here we are'
+      render json: nil, status: unprocessable_entity
     end
   end
 
