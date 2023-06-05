@@ -3,13 +3,13 @@
 one:
   title: MyString
   acusee: MyString
-  charges: MyString
+  claims: MyString
   collection_date: MyString
   date: MyString
 
 two:
   title: MyString
   acusee: MyString
-  charges: MyString
+  claims: MyString
   collection_date: MyString
   date: MyString
