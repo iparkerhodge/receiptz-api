@@ -14,6 +14,6 @@ class ReceiptController < ApplicationController
   private
 
   def allowed_receipt_params
-    params.require(:receipt).permit(:title, :accusee, :image_url, { counts: [] }, :collection_date)
+    params.require(:receipt).permit(:title, :accusee, :image_url, { claims: [] }, :collection_date)
   end
 end
