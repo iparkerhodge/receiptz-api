@@ -1,5 +1,26 @@
 class UsersController < ApplicationController
-  before_action :prepare_params!, only: [:create]
+  before_action :prepare_params!, only: %i[create index]
+
+  def index
+    puts params
+    token_data = TwitterApi.new.get_new_access_token_from_refresh_token(params[:token][:refresh_token])
+
+    user_data = TwitterApi.new.get_user_from_token(token_data['access_token'])
+    @twitter_user = user_data.transform_keys! { |k| "twitter_#{k}" }
+
+    @user = User.find_by twitter_username: @twitter_user['twitter_username']
+    # TO DO: check if display name, profile image, etc has changed and update user if so
+
+    if @user
+      @user.access_token = token_data['access_token']
+      @user.access_token_issued_at = DateTime.now
+      @user.refresh_token = token_data['refresh_token']
+
+      render json: @user, status: 200
+    else
+      render status: :unprocessable_entity
+    end
+  end
 
   # client will send an access_token retrieved from twitter
   def create
@@ -23,7 +44,7 @@ class UsersController < ApplicationController
 
       render json: @user
     else
-      render json: nil, status: unprocessable_entity
+      render json: nil, status: :unprocessable_entity
     end
   end
 
