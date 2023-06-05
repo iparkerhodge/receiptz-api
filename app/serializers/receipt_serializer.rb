@@ -1,3 +1,3 @@
-class ChargeSerializer < ActiveModel::Serializer
+class ReceiptSerializer < ActiveModel::Serializer
   attributes :id, :title, :accusee, :counts, :collection_date, :image_url
 end
