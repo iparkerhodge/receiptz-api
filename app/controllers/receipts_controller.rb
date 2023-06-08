@@ -20,7 +20,7 @@ class ReceiptsController < ApplicationController
       return
     end
 
-    @receipts = @user.receipts
+    @receipts = @user.receipts.order(:created_at)
     render json: @receipts, status: 200
   end
 
