@@ -31,7 +31,10 @@ class UsersController < ApplicationController
     # first check if user exists
     @existing_user = User.find_by twitter_username: @twitter_user['twitter_username']
     if @existing_user
-      render json: @existng_user
+      @existing_user.access_token = params[:token][:access_token]
+      @existing_user.access_token_issued_at = params[:token][:issued_at]
+      @existing_user.refresh_token = params[:token][:refresh_token]
+      render json: @existing_user
       return
     end
 
