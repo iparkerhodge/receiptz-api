@@ -1,22 +1,24 @@
 class UsersController < ApplicationController
+  skip_before_action :authenticate_request, only: %i[create]
   before_action :prepare_params!, only: %i[create index]
 
   def index
-    puts params
+    # get new access token
     token_data = TwitterApi.new.get_new_access_token_from_refresh_token(params[:token][:refresh_token])
 
+    # refresh user's twitter data
     user_data = TwitterApi.new.get_user_from_token(token_data['access_token'])
     @twitter_user = user_data.transform_keys! { |k| "twitter_#{k}" }
+    @twitter_user.map { |k, v| @current_user[k] = v }
 
-    @user = User.find_by twitter_username: @twitter_user['twitter_username']
-    # TO DO: check if display name, profile image, etc has changed and update user if so
+    # user provided by authenticate_request
+    if @current_user
+      @current_user.access_token = token_data['access_token']
+      @current_user.access_token_issued_at = DateTime.now
+      @current_user.refresh_token = token_data['refresh_token']
+      @current_user.receiptz_token = jwt_encode(user_id: @existing_user.id)
 
-    if @user
-      @user.access_token = token_data['access_token']
-      @user.access_token_issued_at = DateTime.now
-      @user.refresh_token = token_data['refresh_token']
-
-      render json: @user, status: 200
+      render json: @current_user, status: 200
     else
       render status: :unprocessable_entity
     end
@@ -34,6 +36,8 @@ class UsersController < ApplicationController
       @existing_user.access_token = params[:token][:access_token]
       @existing_user.access_token_issued_at = params[:token][:issued_at]
       @existing_user.refresh_token = params[:token][:refresh_token]
+      @existing_user.receiptz_token = jwt_encode(user_id: @existing_user.id)
+      puts @existing_user.inspect
       render json: @existing_user
       return
     end
@@ -44,8 +48,10 @@ class UsersController < ApplicationController
       @user.access_token = params[:token][:access_token]
       @user.access_token_issued_at = params[:token][:issued_at]
       @user.refresh_token = params[:token][:refresh_token]
+      @user.receiptz_token = jwt_encode(user_id: @user.id)
 
-      render json: @user
+      puts @user.receiptz_token
+      render json: @user, status: :created
     else
       render json: nil, status: :unprocessable_entity
     end

@@ -3,6 +3,11 @@ class ReceiptsController < ApplicationController
   def index; end
 
   def create
+    unless @current_user
+      render json: {}, status: :unauthorized
+      return
+    end
+
     @receipt = Receipt.new(allowed_receipt_params)
 
     if @receipt.save
@@ -13,21 +18,19 @@ class ReceiptsController < ApplicationController
   end
 
   def list
-    @user = User.find(params[:user_id])
-
-    unless @user
-      render status: unprocessable_entity
+    unless @current_user
+      render status: :unprocessable_entity
       return
     end
 
-    @receipts = @user.receipts.not_deleted.order(:created_at)
+    @receipts = @current_user.receipts.not_deleted.order(:created_at)
     render json: @receipts, status: 200
   end
 
   def update
     @receipt = Receipt.find(params[:id])
 
-    unless @receipt
+    unless @receipt && @current_user
       render status: :unprocessable_entity
       return
     end
@@ -43,7 +46,7 @@ class ReceiptsController < ApplicationController
   def delete
     @receipt = Receipt.find(params[:id])
 
-    unless @receipt
+    unless @receipt && @current_user
       render status: :unprocessable_entity
       return
     end
