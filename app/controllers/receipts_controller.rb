@@ -1,5 +1,5 @@
 class ReceiptsController < ApplicationController
-  before_action :prepare_params!, only: %i[create update]
+  before_action :prepare_params!, only: %i[create update delete]
   def index; end
 
   def create
@@ -20,7 +20,7 @@ class ReceiptsController < ApplicationController
       return
     end
 
-    @receipts = @user.receipts.order(:created_at)
+    @receipts = @user.receipts.not_deleted.order(:created_at)
     render json: @receipts, status: 200
   end
 
@@ -34,6 +34,21 @@ class ReceiptsController < ApplicationController
 
     params['receipt'].each { |k, v| @receipt[k] = v }
     if @receipt.save
+      render json: @receipt, status: 200
+    else
+      render status: :unprocessable_entity
+    end
+  end
+
+  def delete
+    @receipt = Receipt.find(params[:id])
+
+    unless @receipt
+      render status: :unprocessable_entity
+      return
+    end
+
+    if @receipt.delete!
       render json: @receipt, status: 200
     else
       render status: :unprocessable_entity

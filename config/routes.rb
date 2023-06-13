@@ -5,6 +5,7 @@ Rails.application.routes.draw do
   get 'receipts/:user_id/list', to: 'receipts#list'
   post 'receipts', to: 'receipts#create'
   post 'receipts/:id', to: 'receipts#update'
+  delete 'receipts/:id', to: 'receipts#delete'
   # Define your application routes per the DSL in https://guides.rubyonrails.org/routing.html
 
   # Defines the root path route ("/")
