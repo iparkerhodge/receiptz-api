@@ -10,7 +10,7 @@
 #
 # It's strongly recommended that you check this file into your version control system.
 
-ActiveRecord::Schema[7.0].define(version: 2023_06_13_162808) do
+ActiveRecord::Schema[7.0].define(version: 2023_07_10_183654) do
   # These are extensions that must be enabled in order to support this database
   enable_extension "plpgsql"
 
@@ -27,16 +27,11 @@ ActiveRecord::Schema[7.0].define(version: 2023_06_13_162808) do
   end
 
   create_table "users", force: :cascade do |t|
-    t.string "access_token"
-    t.string "access_token_issued_at"
-    t.string "refresh_token"
     t.datetime "created_at", null: false
     t.datetime "updated_at", null: false
-    t.string "twitter_username", null: false
-    t.string "twitter_name"
-    t.string "twitter_id"
-    t.string "twitter_profile_image"
-    t.index ["twitter_username"], name: "index_users_on_twitter_username", unique: true
+    t.string "mobile_number", default: "", null: false
+    t.string "password_digest"
+    t.index ["mobile_number"], name: "index_users_on_mobile_number", unique: true
   end
 
   add_foreign_key "receipts", "users"
