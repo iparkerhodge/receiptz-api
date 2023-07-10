@@ -34,10 +34,19 @@ class UsersController < ApplicationController
     end
   end
 
+  # check JWT Token expiration status
+  def status
+    if @current_user
+      render json: @current_user, status: 200
+    else
+      render status: :unauthorized
+    end
+  end
+
   private
 
   def login_params
-    params.require(:token).permit(:mobile_number, :password)
+    params.require(:user).permit(:mobile_number, :password)
   end
 
   def prepare_params!
