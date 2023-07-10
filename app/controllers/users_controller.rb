@@ -13,6 +13,7 @@ class UsersController < ApplicationController
   end
 
   def create
+    puts params
     # first check if user exists
     @existing_user = User.find_by mobile_number: params['mobile_number']
     render json: @existing_user and return if @existing_user&.authenticate(params['password'])
@@ -25,6 +26,7 @@ class UsersController < ApplicationController
                        name: params['name']
                      })
     if @user.save
+      puts @user
       @user.receiptz_token = jwt_encode(user_id: @user.id) # add JWT Token
 
       puts @user.receiptz_token
