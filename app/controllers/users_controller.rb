@@ -5,7 +5,7 @@ class UsersController < ApplicationController
   def index
     @user = User.find_by mobile_number: params['mobile_number']
 
-    if @user && @user.authenticate(params['password'])
+    if @user&.authenticate(params['password'])
       render json: @current_user, status: 200
     else
       render status: :unprocessable_entity
@@ -15,13 +15,14 @@ class UsersController < ApplicationController
   def create
     # first check if user exists
     @existing_user = User.find_by mobile_number: params['mobile_number']
-    render json: @existing_user and return if @existing_user
+    render json: @existing_user and return if @existing_user&.authenticate(params['password'])
 
     # create the new user
     @user = User.new({
                        mobile_number: params['mobile_number'],
                        password: params['password'],
-                       password_confirmation: params['password'] # skip confirmation, just make password reset easy
+                       password_confirmation: params['password'], # skip confirmation, just make password reset easy
+                       name: params['name']
                      })
     if @user.save
       @user.receiptz_token = jwt_encode(user_id: @user.id) # add JWT Token
